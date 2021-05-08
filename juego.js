@@ -8,6 +8,7 @@ class Juego
     constructor()
     {
         this.podium = new Podium();
+        this.cargar_juego();
     }
 
     agregar_dist_max(distancia)
@@ -60,6 +61,38 @@ class Juego
             this.reiniciar_juego()
             console.log(" el juego se ha reiniciado");
             console.log(" ");
+
+            this.guardar_juego();
+        }
+    }
+
+    guardar_juego()
+    {
+        var carros = [];
+        for (var i = 0; i < this.pista.carriles.length; i ++)
+        {
+            var carro = this.pista.carriles[i].carro;
+            carros.push(carro);
+        }
+        localStorage.setItem("carros", JSON.stringify(carros));
+        localStorage.setItem("pista", this.pista.distancia_max);
+    }
+
+    cargar_juego()
+    {
+        var carros = localStorage.getItem("carros");
+
+        if(carros)
+        {
+            var distancia_max =localStorage.getItem("pista");
+            this.agregar_dist_max(distancia_max);
+            
+            carros = JSON.parse(carros);
+            for(var i = 0; i < carros.length; i ++)
+            {
+                var carro = carros[i];
+                this.pista.registrar_conductor(carro.conductor.nombre,carro.color,carro.conductor.victorias);
+            }
         }
     }
 }
@@ -74,9 +107,9 @@ class Pista
         this.distancia_max = distancia_max;
     }
 
-    registrar_conductor(nombre,color)
+    registrar_conductor(nombre,color,victorias)
     {
-        var jugador = new Jugador(nombre);
+        var jugador = new Jugador(nombre,victorias);
         var carro = new Carro(jugador, color);
         var carril = new Carril(carro);
         this.carriles.push(carril);
@@ -120,9 +153,10 @@ class Jugador
     victorias = 0;
     nombre;
 
-    constructor(nombre)
+    constructor(nombre,victorias)
     {
         this.nombre = nombre;
+        this.victorias = victorias;
     }
 }
 
